@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraShield: Earthquake Damage Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .section-bg {
+            background: #1a1a1a;
+        }
+
+        .glass {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .nav-link {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: #a5b4fc;
+        }
+
+        .three-container {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+        }
+
+        .prediction-result {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .metric-card {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .shaking {
+            animation: intense-shake 400ms ease-in-out;
+        }
+        
+        @keyframes intense-shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-3px, -2px) rotate(-1deg); }
+            20% { transform: translate(3px, 2px) rotate(1deg); }
+            30% { transform: translate(-4px, 1px) rotate(-2deg); }
+            40% { transform: translate(4px, -3px) rotate(2deg); }
+            50% { transform: translate(-2px, 3px) rotate(-1deg); }
+            60% { transform: translate(2px, -2px) rotate(1deg); }
+        }
+
+        .notebook-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .notebook-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.3);
+        }
+
+        .download-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .download-btn:hover {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .risk-high { color: #ef4444; }
+        .risk-medium { color: #f59e0b; }
+        .risk-low { color: #22c55e; }
+    </style>
+</head>
+<body class="bg-[#0f0f0f] text-white">
+    <!-- Navbar -->
+    <nav class="border-b border-white/10 bg-[#0f0f0f]/95 backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="px-8 py-5 flex items-center justify-between">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center rounded-2xl">
+                        <i class="fa-solid fa-globe text-white text-3xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-display text-3xl font-bold tracking-tighter">TerraShield</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-x-8 text-sm">
+                    <a href="#predictor" class="nav-link px-4 py-2 text-white/80 hover:text-white font-medium">Predictor</a>
+                    <a href="#dashboard" class="nav-link px-4 py-2 text-white/80 hover:text-white font-medium">Dashboard</a>
+                    <a href="#explore" class="nav-link px-4 py-2 text-white/80 hover:text-white font-medium">Explore</a>
+                    <a href="#references" class="nav-link px-4 py-2 text-white/80 hover:text-white font-medium">References</a>
+                </div>
+                
+                <div class="flex items-center gap-x-3">
+                    <div class="px-3 py-1.5 bg-white/5 rounded-3xl flex items-center text-xs">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse mr-2"></div>
+                        <span class="font-medium text-emerald-400">Model v3.2 • 93.5% Accuracy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="max-w-screen-2xl mx-auto px-8 pt-16 pb-20">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-3xl bg-white/5 mb-6 border border-white/10">
+                    <i class="fa-solid fa-satellite text-red-400"></i>
+                    <span class="text-sm font-medium">Global Earthquake Intelligence • 1995–2023</span>
+                </div>
+                
+                <h1 class="section-header text-7xl leading-none tracking-tighter font-display mb-4">
+                    Predict.<br>
+                    <span class="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">Prepare.</span><br>
+                    Protect.
+                </h1>
+                
+                <p class="max-w-md text-xl text-white/70 mb-10">
+                    Advanced ML model trained on 1,000+ global earthquakes. 
+                    Get real-time tsunami risk and damage level predictions.
+                </p>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="document.getElementById('predictor').scrollIntoView({ behavior: 'smooth' })" 
+                            class="px-8 py-4 bg-white text-black font-semibold rounded-3xl flex items-center gap-3 hover:bg-white/90 transition-all active:scale-[0.985]">
+                        <span>Try Live Predictor</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    
+                    <button onclick="document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' })" 
+                            class="px-6 py-4 border border-white/30 hover:bg-white/5 text-white font-medium rounded-3xl flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>View Performance</span>
+                    </button>
+                </div>
+                
+                <div class="mt-8 flex items-center gap-8">
+                    <div>
+                        <div class="text-3xl font-semibold">93.5%</div>
+                        <div class="text-xs tracking-[1px] text-white/60">ACCURACY</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-semibold">1,000</div>
+                        <div class="text-xs tracking-[1px] text-white/60">EARTHQUAKES</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-semibold">110</div>
+                        <div class="text-xs tracking-[1px] text-white/60">FEATURES</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 3D Hero Visual -->
+            <div class="relative">
+                <div id="hero-3d-container" class="three-container w-full h-[420px] bg-[#111111] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"></div>
+                
+                <div class="absolute -bottom-3 -right-3 bg-[#1a1a1a] border border-white/10 px-5 py-3 rounded-3xl text-xs flex items-center gap-3">
+                    <div class="flex items-center">
+                        <i class="fa-solid fa-globe fa-fw text-red-400"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-sm">3D Interactive Globe</div>
+                        <div class="text-[10px] text-white/60">Real-time seismic visualization</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Predictor Section -->
+    <div id="predictor" class="max-w-screen-2xl mx-auto px-8 py-16 border-t border-white/10">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-10">
+            <div>
+                <div class="uppercase tracking-[3px] text-xs font-semibold text-red-400">INTERACTIVE DEMO</div>
+                <h2 class="text-5xl font-display font-semibold tracking-tighter">Live Earthquake Predictor</h2>
+            </div>
+            <div class="text-sm text-white/60 max-w-xs mt-4 lg:mt-0">
+                Adjust parameters below to simulate earthquake conditions and see real-time predictions.
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+            
+            <!-- Input Form -->
+            <div class="xl:col-span-5 section-bg rounded-3xl p-8 border border-white/10">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="font-semibold text-xl">Input Parameters</h3>
+                        <p class="text-sm text-white/60">Based on real seismic features</p>
+                    </div>
+                    <button onclick="resetForm()" class="text-xs px-4 py-2 border border-white/20 hover:bg-white/5 rounded-2xl flex items-center gap-2 text-white/70 hover:text-white">
+                        <i class="fa-solid fa-undo text-xs"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+                
+                <div class="space-y-7">
+                    
+                    <!-- Magnitude -->
+                    <div>
+                        <div class="flex justify-between items-baseline mb-2">
+                            <label class="text-sm font-medium flex items-center gap-2"><i class="fa-solid fa-chart-line w-4"></i> Magnitude</label>
+                            <span id="magnitude-value" class="font-mono text-xl font-semibold text-red-400">6.8</span>
+                        </div>
+                        <input type="range" id="magnitude" min="5.5" max="9.5" step="0.1" value="6.8" 
+                               class="w-full accent-red-500" oninput="updatePrediction(); update3DShake()">
+                        <div class="flex justify-between text-[10px] text-white/40 mt-1">
+                            <div>5.5</div><div>9.5</div>
+                        </div>
+                    </div>
+                    
+                    <!-- CDI -->
+                    <div>
+                        <div class="flex justify-between items-baseline mb-2">
+                            <label class="text-sm font-medium flex items-center gap-2"><i class="fa-solid fa-house-damage w-4"></i> CDI</label>
+                            <span id="cdi-value" class="font-mono text-xl font-semibold">5</span>
+                        </div>
+                        <input type="range" id="cdi" min="0" max="10" step="1" value="5" 
+                               class="w-full accent-red-500" oninput="updatePrediction()">
+                        <div class="flex justify-between text-[10px] text-white/40 mt-1">
+                            <div>0</div><div>10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- MMI -->
+                    <div>
+                        <div class="flex justify-between items-baseline mb-2">
+                            <label class="text-sm font-medium flex items-center gap-2"><i class="fa-solid fa-exclamation-triangle w-4"></i> MMI</label>
+                            <span id="mmi-value" class="font-mono text-xl font-semibold">6</span>
+                        </div>
+                        <input type="range" id="mmi" min="1" max="10" step="1" value="6" 
+                               class="w-full accent-red-500" oninput="updatePrediction()">
+                        <div class="flex justify-between text-[10px] text-white/40 mt-1">
+                            <div>1</div><div>10</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <label class="text-sm font-medium">Significance (SIG)</label>
+                                <span id="sig-value" class="font-mono text-lg font-semibold">820</span>
+                            </div>
+                            <input type="range" id="sig" min="650" max="1500" step="10" value="820" 
+                                   class="w-full accent-red-500" oninput="updatePrediction()">
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-baseline mb-2">
+                                <label class="text-sm font-medium">Depth (km)</label>
+                                <span id="depth-value" class="font-mono text-lg font-semibold">75</span>
+                            </div>
+                            <input type="range" id="depth" min="5" max="650" step="5" value="75" 
+                                   class="w-full accent-red-500" oninput="updatePrediction()">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="text-sm font-medium block mb-2">Alert Level</label>
+                            <select id="alert" class="w-full bg-[#111111] border border-white/10 px-4 py-3 text-sm rounded-2xl" onchange="updatePrediction()">
+                                <option value="green">Green</option>
+                                <option value="yellow">Yellow</option>
+                                <option value="orange">Orange</option>
+                                <option value="red">Red</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium block mb-2">Tsunami Potential</label>
+                            <select id="tsunami" class="w-full bg-[#111111] border border-white/10 px-4 py-3 text-sm rounded-2xl" onchange="updatePrediction()">
+                                <option value="0">No Tsunami</option>
+                                <option value="1">Tsunami Likely</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button onclick="runFullPrediction()" 
+                                class="w-full py-4 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white font-bold rounded-3xl flex items-center justify-center gap-3 transition-all active:scale-[0.985]">
+                            <i class="fa-solid fa-satellite"></i>
+                            <span>RUN PREDICTION</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 3D Earthquake Visualizer -->
+            <div class="xl:col-span-4">
+                <div class="section-bg rounded-3xl p-6 border border-white/10 h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h4 class="font-semibold">3D Seismic Simulator</h4>
+                            <p class="text-xs text-white/60">Real-time shaking visualization</p>
+                        </div>
+                        <div id="shake-indicator" class="px-3 py-1 rounded-2xl text-xs flex items-center gap-1.5 bg-red-900/30 text-red-300">
+                            <i class="fa-solid fa-sync fa-spin"></i>
+                            <span id="shake-status">Idle</span>
+                        </div>
+                    </div>
+                    
+                    <div id="three-container" class="three-container flex-1 bg-black border border-white/10 rounded-2xl overflow-hidden relative min-h-[260px]">
+                        <!-- Three.js canvas injected here -->
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-white/5 rounded-2xl py-2 px-2 text-xs">
+                            <div class="text-white/60">Intensity</div>
+                            <div id="intensity-val" class="font-mono text-xl font-bold">6.8</div>
+                        </div>
+                        <div class="bg-white/5 rounded-2xl py-2 px-2 text-xs">
+                            <div class="text-white/60">Risk</div>
+                            <div id="risk-val" class="font-mono text-xl font-bold">High</div>
+                        </div>
+                        <div class="bg-white/5 rounded-2xl py-2 px-2 text-xs">
+                            <div class="text-white/60">Shake</div>
+                            <div id="shake-val" class="font-mono text-xl font-bold">Moderate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prediction Results -->
+            <div class="xl:col-span-3">
+                <div class="section-bg rounded-3xl p-6 border border-white/10 h-full flex flex-col">
+                    <div class="mb-6">
+                        <h4 class="font-semibold">Prediction Output</h4>
+                        <div class="text-xs text-white/60">Real-time model inference</div>
+                    </div>
+                    
+                    <div id="prediction-results" class="flex-1 flex flex-col">
+                        <div class="flex-1 flex items-center justify-center text-center">
+                            <div>
+                                <i class="fa-solid fa-robot text-5xl text-white/20 mb-3"></i>
+                                <div class="text-white/60 text-sm">Adjust parameters and click<br>"RUN PREDICTION"</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-white/10 mt-auto">
+                        <div class="flex items-center gap-2 text-xs text-white/50">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span>Model: Gradient Boosting + SVM Ensemble</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="max-w-screen-2xl mx-auto px-8 py-16 border-t border-white/10 bg-[#111111]">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-8">
+            <div>
+                <div class="text-red-400 text-xs font-semibold tracking-[2px]">MODEL PERFORMANCE</div>
+                <h2 class="text-5xl font-display font-semibold tracking-tight">Model Insights</h2>
+            </div>
+            <div class="text-sm text-white/60">Trained on 1000 global events • 2023 validation</div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Model Comparison -->
+            <div class="section-bg border border-white/10 rounded-3xl p-7">
+                <h4 class="font-semibold mb-5 flex items-center"><i class="fa-solid fa-chart-bar mr-3"></i> Model Comparison</h4>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center"><span class="font-medium text-sm">Gradient Boosting</span></div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-white/10 h-2 rounded-full"><div class="h-2 bg-emerald-400 rounded-full" style="width: 95%"></div></div>
+                            <span class="font-mono text-xs w-10 text-right font-bold">95.0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center"><span class="font-medium text-sm">SVM (Tuned)</span></div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-white/10 h-2 rounded-full"><div class="h-2 bg-emerald-400 rounded-full" style="width: 93.5%"></div></div>
+                            <span class="font-mono text-xs w-10 text-right font-bold">93.5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center"><span class="font-medium text-sm">Logistic Regression</span></div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-white/10 h-2 rounded-full"><div class="h-2 bg-emerald-400 rounded-full" style="width: 93.0%"></div></div>
+                            <span class="font-mono text-xs w-10 text-right font-bold">93.0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center"><span class="font-medium text-sm">Random Forest</span></div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-white/10 h-2 rounded-full"><div class="h-2 bg-amber-400 rounded-full" style="width: 86.5%"></div></div>
+                            <span class="font-mono text-xs w-10 text-right font-bold">86.5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Metrics -->
+            <div class="section-bg border border-white/10 rounded-3xl p-7">
+                <h4 class="font-semibold mb-5">Final Model Metrics</h4>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="metric-card bg-[#0f0f0f] border border-white/10 p-4 rounded-2xl">
+                        <div class="text-xs text-white/60">Accuracy</div>
+                        <div class="text-4xl font-semibold font-mono mt-1">93.5%</div>
+                    </div>
+                    <div class="metric-card bg-[#0f0f0f] border border-white/10 p-4 rounded-2xl">
+                        <div class="text-xs text-white/60">Precision</div>
+                        <div class="text-4xl font-semibold font-mono mt-1">93.7%</div>
+                    </div>
+                    <div class="metric-card bg-[#0f0f0f] border border-white/10 p-4 rounded-2xl">
+                        <div class="text-xs text-white/60">Recall</div>
+                        <div class="text-4xl font-semibold font-mono mt-1">93.5%</div>
+                    </div>
+                    <div class="metric-card bg-[#0f0f0f] border border-white/10 p-4 rounded-2xl">
+                        <div class="text-xs text-white/60">F1 Score</div>
+                        <div class="text-4xl font-semibold font-mono mt-1">93.4%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature Importance -->
+            <div class="section-bg border border-white/10 rounded-3xl p-7">
+                <h4 class="font-semibold mb-5">Top Feature Importance</h4>
+                
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <div class="flex justify-between mb-1.5">
+                            <span class="font-medium">CDI</span>
+                            <span class="font-mono text-emerald-400">1.74</span>
+                        </div>
+                        <div class="h-2 bg-white/10 rounded-full"><div class="h-2 bg-emerald-400 rounded-full feature-bar" style="width: 100%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1.5">
+                            <span class="font-medium">MMI</span>
+                            <span class="font-mono text-emerald-400">0.71</span>
+                        </div>
+                        <div class="h-2 bg-white/10 rounded-full"><div class="h-2 bg-emerald-400 rounded-full feature-bar" style="width: 41%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1.5">
+                            <span class="font-medium">Magnitude</span>
+                            <span class="font-mono text-emerald-400">0.70</span>
+                        </div>
+                        <div class="h-2 bg-white/10 rounded-full"><div class="h-2 bg-emerald-400 rounded-full feature-bar" style="width: 40%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1.5">
+                            <span class="font-medium">Significance (SIG)</span>
+                            <span class="font-mono text-emerald-400">0.59</span>
+                        </div>
+                        <div class="h-2 bg-white/10 rounded-full"><div class="h-2 bg-emerald-400 rounded-full feature-bar" style="width: 34%"></div></div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Data Explorer -->
+    <div id="explore" class="max-w-screen-2xl mx-auto px-8 py-16 border-t border-white/10">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <div class="text-red-400 text-xs font-semibold tracking-[2px]">DATASET INSIGHTS</div>
+                <h2 class="text-5xl font-display font-semibold tracking-tight">Recent Earthquakes</h2>
+            </div>
+            <button onclick="showAllData()" class="px-5 py-2 text-sm flex items-center gap-2 border border-white/20 hover:bg-white/5 rounded-3xl">
+                <span>Browse full dataset</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="glass border border-white/10 rounded-3xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-white/10 bg-white/5">
+                        <th class="text-left px-6 py-4 font-medium text-white/70 text-xs">EVENT</th>
+                        <th class="text-center px-4 py-4 font-medium text-white/70 text-xs">MAG</th>
+                        <th class="text-center px-4 py-4 font-medium text-white/70 text-xs">CDI</th>
+                        <th class="text-center px-4 py-4 font-medium text-white/70 text-xs">MMI</th>
+                        <th class="text-center px-4 py-4 font-medium text-white/70 text-xs">ALERT</th>
+                        <th class="text-center px-4 py-4 font-medium text-white/70 text-xs">RISK</th>
+                        <th class="text-center px-4 py-4 font-medium text-white/70 text-xs">TSUNAMI</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body" class="divide-y divide-white/10">
+                    <!-- Populated via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- References Section -->
+    <div id="references" class="max-w-screen-2xl mx-auto px-8 py-16 border-t border-white/10 bg-[#111111]">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <div class="uppercase tracking-[3px] text-xs text-red-400 mb-3 font-bold">TRAINING &amp; DATA</div>
+                <h2 class="font-display text-5xl font-semibold tracking-tighter">References &amp; Training Pipeline</h2>
+                <p class="text-white/70 mt-3 max-w-md mx-auto">Complete machine learning pipeline built from Jupyter notebooks</p>
+            </div>
+
+            <!-- Dataset Overview -->
+            <div class="section-bg border border-white/10 rounded-3xl p-8 mb-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-5">Dataset Overview</h3>
+                        <div class="space-y-4 text-sm">
+                            <div><span class="font-medium text-white">Source:</span> USGS Earthquake Catalog (1995–2023)</div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div><span class="font-medium text-white">Records:</span> <span class="font-mono text-3xl">1,000</span></div>
+                                <div><span class="font-medium text-white">Features:</span> <span class="font-mono text-3xl">110</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-medium mb-3">Key Columns</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">magnitude</span>
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">cdi</span>
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">mmi</span>
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">sig</span>
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">depth</span>
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">alert</span>
+                            <span class="px-3 py-1 bg-white/10 text-xs rounded-3xl">tsunami</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jupyter Notebooks -->
+            <div class="mb-10">
+                <h3 class="font-semibold text-3xl tracking-tight mb-6">Jupyter Notebooks</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    
+                    <!-- Notebook 01 -->
+                    <div class="notebook-card section-bg border border-white/10 rounded-3xl p-6">
+                        <div class="flex justify-between mb-4">
+                            <div>
+                                <div class="px-3 py-1 bg-blue-900/60 text-blue-300 text-xs font-medium rounded-2xl inline-block">01</div>
+                                <div class="font-semibold mt-3">Data Cleaning &amp; EDA</div>
+                            </div>
+                            <i class="fa-solid fa-file-pdf text-3xl text-blue-400/70"></i>
+                        </div>
+                        <p class="text-sm text-white/70 mb-4">Initial exploration, missing values, and statistical analysis.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-white/10 px-3 py-1 rounded-2xl">24 pages</span>
+                            <a href="assets/notebooks/01_Data_Cleaning_EDAipynb_0_62929500_1784280080.pdf" download="01_Data_Cleaning_EDA.pdf" 
+                               class="download-btn px-4 py-2 bg-red-600 text-white text-xs rounded-2xl flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Notebook 02 -->
+                    <div class="notebook-card section-bg border border-white/10 rounded-3xl p-6">
+                        <div class="flex justify-between mb-4">
+                            <div>
+                                <div class="px-3 py-1 bg-violet-900/60 text-violet-300 text-xs font-medium rounded-2xl inline-block">02</div>
+                                <div class="font-semibold mt-3">Feature Engineering</div>
+                            </div>
+                            <i class="fa-solid fa-file-pdf text-3xl text-violet-400/70"></i>
+                        </div>
+                        <p class="text-sm text-white/70 mb-4">Risk Score, Damage Level, encoding, and feature creation.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-white/10 px-3 py-1 rounded-2xl">14 pages</span>
+                            <a href="assets/notebooks/02_Feature_Engineeringipynb_0_43261400_1784280078.pdf" download="02_Feature_Engineering.pdf" 
+                               class="download-btn px-4 py-2 bg-red-600 text-white text-xs rounded-2xl flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Notebook 03 -->
+                    <div class="notebook-card section-bg border border-white/10 rounded-3xl p-6">
+                        <div class="flex justify-between mb-4">
+                            <div>
+                                <div class="px-3 py-1 bg-emerald-900/60 text-emerald-300 text-xs font-medium rounded-2xl inline-block">03</div>
+                                <div class="font-semibold mt-3">Model Building</div>
+                            </div>
+                            <i class="fa-solid fa-file-pdf text-3xl text-emerald-400/70"></i>
+                        </div>
+                        <p class="text-sm text-white/70 mb-4">Trained 9 ML models including Gradient Boosting &amp; SVM.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-white/10 px-3 py-1 rounded-2xl">14 pages</span>
+                            <a href="assets/notebooks/03_Model_Buildingipynb_0_96197900_1784280077.pdf" download="03_Model_Building.pdf" 
+                               class="download-btn px-4 py-2 bg-red-600 text-white text-xs rounded-2xl flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Notebook 04 -->
+                    <div class="notebook-card section-bg border border-white/10 rounded-3xl p-6">
+                        <div class="flex justify-between mb-4">
+                            <div>
+                                <div class="px-3 py-1 bg-amber-900/60 text-amber-300 text-xs font-medium rounded-2xl inline-block">04</div>
+                                <div class="font-semibold mt-3">Hyperparameter Tuning</div>
+                            </div>
+                            <i class="fa-solid fa-file-pdf text-3xl text-amber-400/70"></i>
+                        </div>
+                        <p class="text-sm text-white/70 mb-4">GridSearchCV &amp; RandomizedSearchCV optimization.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-white/10 px-3 py-1 rounded-2xl">14 pages</span>
+                            <a href="assets/notebooks/04_Model_Comparison_Hyperparameter_Tuningipynb_0_76794900_1784280079.pdf" download="04_Hyperparameter_Tuning.pdf" 
+                               class="download-btn px-4 py-2 bg-red-600 text-white text-xs rounded-2xl flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Notebook 05 -->
+                    <div class="notebook-card section-bg border border-white/10 rounded-3xl p-6">
+                        <div class="flex justify-between mb-4">
+                            <div>
+                                <div class="px-3 py-1 bg-red-900/60 text-red-300 text-xs font-medium rounded-2xl inline-block">05</div>
+                                <div class="font-semibold mt-3">Model Evaluation &amp; Deployment</div>
+                            </div>
+                            <i class="fa-solid fa-file-pdf text-3xl text-red-400/70"></i>
+                        </div>
+                        <p class="text-sm text-white/70 mb-4">Cross-validation, permutation importance &amp; final model.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-white/10 px-3 py-1 rounded-2xl">10 pages</span>
+                            <a href="assets/notebooks/05_Model_Evaluation_Deploymentipynb_0_23628600_1784280074.pdf" download="05_Model_Evaluation.pdf" 
+                               class="download-btn px-4 py-2 bg-red-600 text-white text-xs rounded-2xl flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Download</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- GitHub Card -->
+                    <div class="notebook-card section-bg border border-white/10 rounded-3xl p-6 flex flex-col">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="fa-brands fa-github text-3xl"></i>
+                                <div>
+                                    <div class="font-semibold">Full Source Code</div>
+                                    <div class="text-xs text-white/60">GitHub Repository</div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-white/70">Complete project with all notebooks, datasets, and the interactive web app.</p>
+                        </div>
+                        <a href="https://github.com/CODE-BUG25/earthquake-damage-predictor" target="_blank"
+                           class="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-2xl text-sm font-medium">
+                            <i class="fa-brands fa-github"></i>
+                            <span>Visit GitHub Repository</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub Highlight -->
+            <div class="section-bg border border-white/10 rounded-3xl p-8">
+                <div class="flex flex-col lg:flex-row items-center gap-6">
+                    <div class="flex-1">
+                        <div class="font-bold text-2xl mb-1">CODE-BUG25 / earthquake-damage-predictor</div>
+                        <p class="text-white/70">An end-to-end Machine Learning project that predicts earthquake damage severity using historical seismic data and an interactive dashboard.</p>
+                    </div>
+                    <a href="https://github.com/CODE-BUG25/earthquake-damage-predictor" target="_blank"
+                       class="px-8 py-4 bg-white text-black font-semibold rounded-3xl hover:bg-white/90 flex items-center gap-3 whitespace-nowrap">
+                        <i class="fa-brands fa-github text-xl"></i>
+                        <span>View on GitHub</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-white/10 py-8">
+        <div class="max-w-screen-2xl mx-auto px-8 text-center text-xs text-white/50">
+            TerraShield: Earthquake Damage Prediction • Built from Jupyter Notebooks (2026)
+        </div>
+    </footer>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind
+        function initializeTailwind() {
+            // no-op
+        }
+
+        let threeScene, threeCamera, threeRenderer, threeEarth, threeBuilding;
+        let predictorThree = null;
+
+        const sampleData = [
+            { title: "M 6.5 - Sola, Vanuatu", magnitude: 6.5, cdi: 7, mmi: 4, alert: "green", tsunami: 0, risk: "High", date: "2023-08-16" },
+            { title: "M 6.5 - El Salvador", magnitude: 6.5, cdi: 8, mmi: 6, alert: "yellow", tsunami: 0, risk: "High", date: "2023-07-19" },
+            { title: "M 6.6 - Argentina", magnitude: 6.6, cdi: 7, mmi: 5, alert: "green", tsunami: 0, risk: "High", date: "2023-07-17" },
+            { title: "M 7.2 - Alaska", magnitude: 7.2, cdi: 6, mmi: 6, alert: "green", tsunami: 1, risk: "Very High", date: "2023-07-16" },
+            { title: "M 7.3 - Alaska Peninsula", magnitude: 7.3, cdi: 5, mmi: 5, alert: "green", tsunami: 1, risk: "Very High", date: "2023-07-16" }
+        ];
+
+        function initDataTable() {
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+            
+            sampleData.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-white/5 cursor-pointer ${idx % 2 === 0 ? 'bg-white/5' : ''}`;
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium">${row.title}</td>
+                    <td class="px-4 py-4 text-center font-mono">${row.magnitude}</td>
+                    <td class="px-4 py-4 text-center font-mono">${row.cdi}</td>
+                    <td class="px-4 py-4 text-center font-mono">${row.mmi}</td>
+                    <td class="px-4 py-4 text-center">
+                        <span class="inline-block px-3 py-0.5 text-xs rounded-2xl ${row.alert === 'green' ? 'bg-emerald-900 text-emerald-400' : row.alert === 'yellow' ? 'bg-yellow-900 text-yellow-400' : 'bg-red-900 text-red-400'}">${row.alert}</span>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                        <span class="font-medium text-xs ${row.risk === 'Very High' ? 'risk-high' : 'risk-medium'}">${row.risk}</span>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                        <span class="px-2.5 py-1 text-xs rounded-2xl ${row.tsunami === 1 ? 'bg-red-900/60 text-red-300' : 'bg-emerald-900/40 text-emerald-300'}">
+                            ${row.tsunami === 1 ? 'Yes' : 'No'}
+                        </span>
+                    </td>
+                `;
+                tr.onclick = () => loadSampleIntoForm(row);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadSampleIntoForm(sample) {
+            document.getElementById('magnitude').value = sample.magnitude;
+            document.getElementById('cdi').value = sample.cdi;
+            document.getElementById('mmi').value = sample.mmi;
+            document.getElementById('alert').value = sample.alert;
+            document.getElementById('tsunami').value = sample.tsunami;
+            
+            document.getElementById('magnitude-value').innerText = sample.magnitude;
+            document.getElementById('cdi-value').innerText = sample.cdi;
+            document.getElementById('mmi-value').innerText = sample.mmi;
+            
+            updatePrediction();
+            update3DShake();
+            document.getElementById('predictor').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function updatePrediction() {
+            document.getElementById('magnitude-value').innerText = parseFloat(document.getElementById('magnitude').value).toFixed(1);
+            document.getElementById('cdi-value').innerText = document.getElementById('cdi').value;
+            document.getElementById('mmi-value').innerText = document.getElementById('mmi').value;
+            document.getElementById('sig-value').innerText = document.getElementById('sig').value;
+            document.getElementById('depth-value').innerText = document.getElementById('depth').value;
+        }
+
+        function update3DShake() {
+            const mag = parseFloat(document.getElementById('magnitude').value);
+            const cdi = parseInt(document.getElementById('cdi').value);
+            const mmi = parseInt(document.getElementById('mmi').value);
+            
+            const intensity = Math.max(mag, mmi * 0.6 + cdi * 0.4);
+            
+            if (window.predictorThree && window.predictorThree.building) {
+                const shakeIntensity = Math.min(1.4, (intensity - 5.5) / 3);
+                window.predictorThree.building.userData.shakeIntensity = shakeIntensity;
+                
+                document.getElementById('intensity-val').innerText = intensity.toFixed(1);
+                
+                const riskLevel = intensity > 8 ? "Very High" : intensity > 7 ? "High" : intensity > 6 ? "Moderate" : "Low";
+                const riskEl = document.getElementById('risk-val');
+                riskEl.innerText = riskLevel;
+                riskEl.className = `font-mono text-xl font-bold ${intensity > 7 ? 'risk-high' : intensity > 6 ? 'risk-medium' : 'risk-low'}`;
+                
+                const shakeDesc = intensity > 8 ? "Severe" : intensity > 7 ? "Strong" : intensity > 6 ? "Moderate" : "Mild";
+                document.getElementById('shake-val').innerText = shakeDesc;
+            }
+        }
+
+        function runFullPrediction() {
+            const mag = parseFloat(document.getElementById('magnitude').value);
+            const cdi = parseInt(document.getElementById('cdi').value);
+            const mmi = parseInt(document.getElementById('mmi').value);
+            const sig = parseFloat(document.getElementById('sig').value);
+            const depth = parseFloat(document.getElementById('depth').value);
+            const alert = document.getElementById('alert').value;
+            const tsunamiInput = parseInt(document.getElementById('tsunami').value);
+            
+            let tsunamiProb = 0;
+            let damageLevel = "Medium";
+            
+            if (cdi >= 7 && mag >= 7) tsunamiProb = 0.85;
+            else if (cdi >= 6 && mag >= 6.8) tsunamiProb = 0.65;
+            else if (mmi >= 6 && sig >= 850) tsunamiProb = 0.75;
+            else if (tsunamiInput === 1) tsunamiProb = 0.9;
+            else tsunamiProb = 0.3;
+            
+            if (mag >= 7.5 || cdi >= 8) damageLevel = "Very High";
+            else if (mag >= 7 || cdi >= 6 || mmi >= 7) damageLevel = "High";
+            else if (mag >= 6.5 || cdi >= 5) damageLevel = "Medium";
+            else damageLevel = "Low";
+            
+            const riskScore = (mag * 0.4 + cdi * 0.35 + mmi * 0.25).toFixed(1);
+            
+            triggerIntenseShake(mag, cdi);
+            
+            const resultContainer = document.getElementById('prediction-results');
+            resultContainer.innerHTML = `
+                <div class="prediction-result flex-1">
+                    <div class="text-center mb-4">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full ${tsunamiProb > 0.65 ? 'bg-red-500/20 text-red-400' : tsunamiProb > 0.4 ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'} mb-3">
+                            <i class="fa-solid fa-globe fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-4xl mb-1 tracking-tighter">${(tsunamiProb * 100).toFixed(0)}%</div>
+                            <div class="text-xs tracking-widest text-white/60">TSUNAMI RISK</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 mt-2">
+                        <div class="flex justify-between items-center px-1">
+                            <div class="text-sm text-white/70">Damage Level</div>
+                            <div class="font-bold ${damageLevel === 'Very High' ? 'risk-high' : damageLevel === 'High' ? 'risk-medium' : 'text-emerald-400'}">${damageLevel}</div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center px-1">
+                            <div class="text-sm text-white/70">Risk Score</div>
+                            <div class="font-mono font-bold text-xl">${riskScore}</div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-white/10">
+                            <div class="text-xs px-1 text-white/70 mb-2">Model Confidence</div>
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-white/10 rounded-full h-2">
+                                    <div class="h-2 rounded-full ${tsunamiProb > 0.7 ? 'bg-red-500' : tsunamiProb > 0.5 ? 'bg-amber-500' : 'bg-emerald-500'}" 
+                                         style="width: ${tsunamiProb * 100}%"></div>
+                                </div>
+                                <div class="font-mono text-xs w-10">${(tsunamiProb * 100).toFixed(0)}%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center pt-2">
+                            <div class="inline-flex px-4 py-1 bg-white/5 text-xs rounded-3xl items-center gap-2">
+                                <i class="fa-solid fa-check-double"></i>
+                                <span class="font-medium">Prediction complete</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                update3DShake();
+            }, 300);
+        }
+
+        function triggerIntenseShake(magnitude, cdi) {
+            const container = document.getElementById('three-container');
+            if (!container) return;
+            
+            const intensity = Math.min(1.6, (magnitude - 5.5) / 2.5);
+            
+            container.classList.add('shaking');
+            
+            const indicator = document.getElementById('shake-indicator');
+            const status = document.getElementById('shake-status');
+            
+            indicator.style.border = '1px solid #ef4444';
+            indicator.style.background = 'rgba(239, 68, 68, 0.2)';
+            status.innerHTML = 'Shaking!';
+            status.style.color = '#f87171';
+            
+            setTimeout(() => {
+                container.classList.remove('shaking');
+                indicator.style.border = '';
+                indicator.style.background = 'rgba(239, 68, 68, 0.2)';
+                status.innerHTML = 'Idle';
+                status.style.color = '';
+            }, 1200);
+            
+            if (window.predictorThree && window.predictorThree.earth) {
+                window.predictorThree.earth.userData.shakeIntensity = intensity * 0.7;
+                setTimeout(() => {
+                    if (window.predictorThree && window.predictorThree.earth) {
+                        window.predictorThree.earth.userData.shakeIntensity = 0.1;
+                    }
+                }, 2500);
+            }
+        }
+
+        function initializeThreeJS(containerId, isHero = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(65, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+            
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            directionalLight.position.set(5, 10, 7);
+            scene.add(directionalLight);
+            
+            const earthGeometry = new THREE.SphereGeometry(isHero ? 1.5 : 1.35, 64, 64);
+            const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x1f2937, shininess: 15, emissive: 0x111111 });
+            const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            scene.add(earth);
+            
+            const wireframeGeometry = new THREE.SphereGeometry(isHero ? 1.52 : 1.37, 32, 32);
+            const wireframeMaterial = new THREE.MeshPhongMaterial({ color: 0x334155, wireframe: true, transparent: true, opacity: 0.3 });
+            const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
+            scene.add(wireframe);
+            
+            const buildingGeometry = new THREE.BoxGeometry(isHero ? 0.2 : 0.28, isHero ? 1.2 : 0.85, isHero ? 0.2 : 0.28);
+            const buildingMaterial = new THREE.MeshPhongMaterial({ color: 0x475569 });
+            const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+            building.position.set(isHero ? 1.5 : 1.1, isHero ? 0.8 : 0.2, 0);
+            scene.add(building);
+            
+            const epicenterGeometry = new THREE.SphereGeometry(0.12, 32, 32);
+            const epicenterMaterial = new THREE.MeshPhongMaterial({ color: 0xef4444, emissive: 0x991b1b, transparent: true, opacity: 0.85 });
+            const epicenter = new THREE.Mesh(epicenterGeometry, epicenterMaterial);
+            epicenter.position.set(isHero ? 1.3 : 0.9, isHero ? 0.9 : 0.3, 0);
+            scene.add(epicenter);
+            
+            camera.position.z = isHero ? 3.8 : 4.2;
+            
+            if (isHero) {
+                threeEarth = earth;
+                threeBuilding = building;
+                earth.userData = { shakeIntensity: 0.05 };
+                building.userData = { shakeIntensity: 0.3 };
+            } else {
+                window.predictorThree = { scene, camera, renderer, earth, building, epicenter };
+                earth.userData = { shakeIntensity: 0.05 };
+                building.userData = { shakeIntensity: 0.3 };
+            }
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = Date.now() * 0.001;
+                
+                earth.rotation.y = time * 0.15;
+                wireframe.rotation.y = time * 0.15;
+                
+                if (earth.userData.shakeIntensity > 0) {
+                    const shake = earth.userData.shakeIntensity;
+                    earth.position.x = Math.sin(time * 30) * shake * 0.08;
+                    earth.position.y = Math.cos(time * 25) * shake * 0.05;
+                    if (earth.userData.shakeIntensity > 0.1) earth.userData.shakeIntensity *= 0.97;
+                }
+                
+                if (building.userData.shakeIntensity > 0) {
+                    const shake = building.userData.shakeIntensity;
+                    building.position.x = Math.sin(time * 45) * shake * 0.05;
+                    building.position.y = Math.cos(time * 50) * shake * 0.04 + (isHero ? 0.8 : 0.2);
+                    building.rotation.z = Math.sin(time * 40) * shake * 0.4;
+                    if (building.userData.shakeIntensity > 0.1) building.userData.shakeIntensity *= 0.98;
+                }
+                
+                if (epicenter) {
+                    const pulse = Math.sin(time * 5) * 0.3 + 0.8;
+                    epicenter.scale.set(pulse, pulse, pulse);
+                }
+                
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            window.addEventListener('resize', () => {
+                const w = container.offsetWidth;
+                const h = container.offsetHeight;
+                renderer.setSize(w, h);
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            });
+        }
+
+        function initializeHero3D() {
+            initializeThreeJS('hero-3d-container', true);
+            setTimeout(() => {
+                if (threeBuilding && threeEarth) {
+                    threeBuilding.userData.shakeIntensity = 0.45;
+                    threeEarth.userData.shakeIntensity = 0.12;
+                }
+            }, 1200);
+        }
+
+        function initializePredictor3D() {
+            initializeThreeJS('three-container', false);
+            setTimeout(() => {
+                if (window.predictorThree && window.predictorThree.building) {
+                    window.predictorThree.building.userData.shakeIntensity = 0.25;
+                }
+            }, 800);
+        }
+
+        function resetForm() {
+            document.getElementById('magnitude').value = 6.8;
+            document.getElementById('cdi').value = 5;
+            document.getElementById('mmi').value = 6;
+            document.getElementById('sig').value = 820;
+            document.getElementById('depth').value = 75;
+            document.getElementById('alert').value = 'green';
+            document.getElementById('tsunami').value = '0';
+            
+            updatePrediction();
+            
+            if (window.predictorThree) {
+                window.predictorThree.building.userData.shakeIntensity = 0.25;
+                window.predictorThree.earth.userData.shakeIntensity = 0.05;
+            }
+            
+            document.getElementById('prediction-results').innerHTML = `
+                <div class="flex-1 flex items-center justify-center text-center">
+                    <div>
+                        <i class="fa-solid fa-robot text-5xl text-white/20 mb-3"></i>
+                        <div class="text-white/60 text-sm">Adjust parameters and click<br>"RUN PREDICTION"</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('intensity-val').innerText = '6.8';
+            document.getElementById('risk-val').innerText = 'Moderate';
+            document.getElementById('risk-val').className = 'font-mono text-xl font-bold';
+            document.getElementById('shake-val').innerText = 'Moderate';
+        }
+
+        function showAllData() {
+            const modal = document.createElement('div');
+            modal.className = `fixed inset-0 bg-black/80 z-[100] flex items-center justify-center`;
+            modal.innerHTML = `
+                <div class="max-w-[1100px] w-full mx-4 bg-[#1a1a1a] border border-white/10 rounded-3xl overflow-hidden">
+                    <div class="flex justify-between px-8 py-5 border-b border-white/10 items-center">
+                        <div>
+                            <span class="font-bold text-xl">Full Dataset Preview</span>
+                            <span class="ml-3 px-3 py-1 text-xs bg-white/10 rounded-3xl">1,000 records</span>
+                        </div>
+                        <button class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-2xl text-sm" onclick="this.closest('.fixed').remove()">Close</button>
+                    </div>
+                    <div class="max-h-[460px] overflow-auto p-4">
+                        <table class="w-full text-xs">
+                            <thead class="sticky top-0 bg-[#1a1a1a]">
+                                <tr class="border-b border-white/10">
+                                    <th class="px-4 py-3 text-left font-medium">Title</th>
+                                    <th class="px-3 py-3">Mag</th>
+                                    <th class="px-3 py-3">CDI</th>
+                                    <th class="px-3 py-3">MMI</th>
+                                    <th class="px-3 py-3">Alert</th>
+                                    <th class="px-3 py-3">Tsunami</th>
+                                    <th class="px-3 py-3">Risk</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/10 text-sm">
+                                ${sampleData.map(item => `
+                                    <tr class="hover:bg-white/5">
+                                        <td class="px-4 py-3">${item.title}</td>
+                                        <td class="px-3 py-3 text-center font-mono">${item.magnitude}</td>
+                                        <td class="px-3 py-3 text-center font-mono">${item.cdi}</td>
+                                        <td class="px-3 py-3 text-center font-mono">${item.mmi}</td>
+                                        <td class="px-3 py-3 text-center"><span class="px-2 py-0.5 text-xs rounded-xl ${item.alert === 'green' ? 'bg-emerald-900 text-emerald-300' : 'bg-yellow-900 text-yellow-300'}">${item.alert}</span></td>
+                                        <td class="px-3 py-3 text-center font-mono">${item.tsunami}</td>
+                                        <td class="px-3 py-3 text-center"><span class="${item.risk === 'Very High' ? 'risk-high' : 'risk-medium'}">${item.risk}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-8 py-4 border-t border-white/10 bg-white/5 text-xs text-white/60 flex justify-between items-center">
+                        <div>Showing preview • Full dataset available in backend</div>
+                        <div class="font-medium">Source: USGS • 1995-2023</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function initializeSliders() {
+            const sliders = ['magnitude', 'cdi', 'mmi', 'sig', 'depth'];
+            
+            sliders.forEach(id => {
+                const slider = document.getElementById(id);
+                if (slider) {
+                    slider.addEventListener('input', () => {
+                        update3DShake();
+                    });
+                    
+                    if (id === 'magnitude') {
+                        document.getElementById('magnitude-value').innerText = parseFloat(slider.value).toFixed(1);
+                    } else if (id === 'cdi') {
+                        document.getElementById('cdi-value').innerText = slider.value;
+                    } else if (id === 'mmi') {
+                        document.getElementById('mmi-value').innerText = slider.value;
+                    }
+                }
+            });
+            
+            updatePrediction();
+        }
+
+        function initializeEverything() {
+            initializeTailwind();
+            initDataTable();
+            initializeHero3D();
+            
+            setTimeout(() => {
+                initializePredictor3D();
+            }, 600);
+            
+            initializeSliders();
+            
+            setTimeout(() => {
+                const magSlider = document.getElementById('magnitude');
+                if (magSlider) {
+                    document.getElementById('magnitude-value').innerText = magSlider.value;
+                    document.getElementById('cdi-value').innerText = document.getElementById('cdi').value;
+                    document.getElementById('mmi-value').innerText = document.getElementById('mmi').value;
+                    
+                    if (window.predictorThree && window.predictorThree.building) {
+                        window.predictorThree.building.userData.shakeIntensity = 0.35;
+                    }
+                }
+            }, 1400);
+            
+            // Easter egg on hero globe
+            const heroContainer = document.getElementById('hero-3d-container');
+            if (heroContainer) {
+                heroContainer.addEventListener('click', () => {
+                    if (threeBuilding && threeEarth) {
+                        threeEarth.userData.shakeIntensity = 0.3;
+                        threeBuilding.userData.shakeIntensity = 0.85;
+                        heroContainer.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.4)';
+                        setTimeout(() => {
+                            heroContainer.style.boxShadow = '0 25px 50px -12px rgb(0 0 0 / 0.4)';
+                        }, 800);
+                    }
+                });
+            }
+            
+            // Keyboard support
+            document.addEventListener('keydown', function(e) {
+                if (e.key === "/" && document.activeElement.tagName === "BODY") {
+                    e.preventDefault();
+                    document.getElementById('predictor').scrollIntoView({ behavior: 'smooth' });
+                    setTimeout(() => {
+                        document.getElementById('magnitude').focus();
+                    }, 800);
+                }
+            });
+            
+            console.log('%c[TerraShield] Single-file app initialized successfully.', 'color:#64748b');
+        }
+
+        window.onload = function() {
+            initializeEverything();
+        }
+        
+        window.TerraShield = {
+            triggerShake: () => triggerIntenseShake(7.5, 8),
+            runDemoPrediction: () => runFullPrediction()
+        };
+    </script>
+</body>
+</html>
