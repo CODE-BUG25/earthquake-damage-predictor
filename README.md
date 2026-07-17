@@ -1,12 +1,22 @@
 #  Earthquake Damage Prediction using Machine Learning
 
 <div align="center">
-
-![Python](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-orange?style=for-the-badge&logo=scikitlearn)
-![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-black?style=for-the-badge&logo=pandas)
-![Streamlit](https://img.shields.io/badge/Streamlit-Web%20App-red?style=for-the-badge&logo=streamlit)
-![Plotly](https://img.shields.io/badge/Plotly-Interactive%20Charts-blueviolet?style=for-the-badge&logo=plotly)
+  
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Machine%20Learning-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=for-the-badge&logo=pandas&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-Numerical%20Computing-013243?style=for-the-badge&logo=numpy&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-Visualization-11557C?style=for-the-badge)
+![Seaborn](https://img.shields.io/badge/Seaborn-Statistical%20Plots-4C72B0?style=for-the-badge)
+![Plotly](https://img.shields.io/badge/Plotly-Interactive%20Charts-3F4F75?style=for-the-badge&logo=plotly&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-Website-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-Styling-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-Interactive%20Website-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-222222?style=for-the-badge&logo=githubpages&logoColor=white)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-End--to--End-blue?style=for-the-badge)
+![EDA](https://img.shields.io/badge/EDA-Exploratory%20Data%20Analysis-8E44AD?style=for-the-badge)
+![Hyperparameter Tuning](https://img.shields.io/badge/Hyperparameter-Tuning-success?style=for-the-badge)
+![Git](https://img.shields.io/badge/Git-Version%20Control-F05032?style=for-the-badge&logo=git&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 ###  Predict Earthquake Damage Severity with Machine Learning
@@ -34,7 +44,7 @@ The project demonstrates the complete Machine Learning lifecycle—from raw data
 - Engineer meaningful features
 - Compare multiple Machine Learning algorithms
 - Optimize models using Hyperparameter Tuning
-- Deploy the best model using Streamlit
+- Deploy the best model using Interactive HTML Website
 - Create a professional, production-style ML project
 
 ---
@@ -65,7 +75,7 @@ The project demonstrates the complete Machine Learning lifecycle—from raw data
 
 ✔ Model Evaluation
 
-✔ Streamlit Web Application
+✔Interactive HTML Website
 
 ✔ Interactive Dashboard
 
@@ -100,7 +110,7 @@ Earthquake-Damage-Prediction/
 │   ├── 04_Model_Comparison_Hyperparameter_Tuning.ipynb
 │   └── 05_Model_Evaluation_Deployment.ipynb
 │
-├── app.py
+├── Interactive HTML Website
 ├── requirements.txt
 ├── README.md
 └── images/
@@ -141,7 +151,7 @@ Historical Earthquake Data
    Model Evaluation
               │
               ▼
-  Streamlit Deployment
+  Interactive HTML Website
 ```
 
 ---
@@ -209,64 +219,115 @@ The project evaluates models using:
 
 ---
 
-#  Streamlit Web Application
+#  Application Screenshots
 
-The deployed application allows users to:
+###  Home Page
 
-- Enter earthquake characteristics
-- Predict damage severity
-- View confidence scores
-- Explore interactive charts
-- Inspect feature importance
-- Browse the dataset
-- Download prediction results
+![Home Page](assets/demo/home_page.png)
 
 ---
 
-#  Visualizations
+###  Prediction Page
 
-The project includes:
+![Prediction Page](assets/demo/prediction_page.png)
 
-- Histograms
-- Boxplots
-- Scatter Plots
-- Heatmaps
-- Pairplots
-- Violin Plots
-- KDE Plots
-- Correlation Matrix
-- Feature Importance Charts
-- Confusion Matrix
-- Interactive Plotly Charts
-- World Earthquake Map
+---
 
+###  Model Information
+
+![Model Information](assets/demo/model_info.png)
+
+---
+
+#  Data Visualizations
+
+### Earthquakes Per Year
+
+![Earthquakes Per Year](assets/01_visualizations/Earthquakes%20Per%20Year.png)
+
+### Damage Level Count
+
+![Damage Level Count](assets/01_visualizations/Damage%20Level%20Count.png)
+
+### Magnitude Distribution
+
+![Magnitude Distribution Plot](assets/01_visualizations/Magnitude%20Distribution%20Plot.png)
+### Magnitude vs Depth
+
+![Magnitude vs Depth Scatterplot](assets/01_visualizations/Magnitude%20vs%20Depth%20Scatterplot.png)
+
+### Correlation Heatmap
+
+![Correlation Heatmap](assets/01_visualizations/Correlation%20Heatmap.png)
+
+---
+
+#  Model Comparison
+
+### Accuracy of Machine Learning Models
+
+![Accuracy of Machine Learning Models](assets/02_model_comparison/Accuracy%20of%20Machine%20Learning%20Models.png)
+
+### Cross Validation Accuracy
+
+![Cross Validation Accuracy of Machine Learning Models](assets/02_model_comparison/Cross%20Validation%20Accuracy%20of%20Machine%20Learning%20Models.png)
+
+### F1 Score
+
+![F1 Score of Machine Learning Models](assets/02_model_comparison/F1%20Score%20of%20Machine%20Learning%20Models.png)
+
+---
+
+#  Model Evaluation
+
+### Confusion Matrix
+
+![Confusion Heatmap of Actual vs Predicted](assets/03_evaluation/Confusion%20heatmap%20of%20Actual%20vs%20Predicted.png)
+---
+
+#  Feature Analysis
+
+### Feature Importance
+
+![Feature Importance](assets/04_feature_analysis/Feature%20Importance.png)
+
+
+---
+
+# ⚙️ Hyperparameter Tuning
+
+### Learning Curve
+
+![Learning Curve](assets/05_tuning/Learning%20Curve.png)
+
+### Validation Curve
+
+![Validation Curve (Random Forest)](assets/05_tuning/Validation%20Curve%20(Random%20Forest).png)
 ---
 
 #  Installation
 
-Clone the repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/CODE-BUG25/Earthquake-Damage-Prediction.git
 ```
 
-Move into the project
+### Navigate to the Project Folder
 
 ```bash
 cd Earthquake-Damage-Prediction
 ```
 
-Install dependencies
+### Install Required Libraries
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run the Streamlit application
+### Launch the Website
 
-```bash
-streamlit run app.py
-```
+Open the `website/index.html` file in your preferred web browser.
 
 ---
 
@@ -282,23 +343,6 @@ Plotly
 Scikit-Learn
 Joblib
 Pickle
-Streamlit
-```
-
----
-
-#  Screenshots
-
-> Replace these placeholders with screenshots after deployment.
-
-```
-images/
-│
-├── dashboard.png
-├── prediction.png
-├── feature_importance.png
-├── confusion_matrix.png
-└── world_map.png
 ```
 
 ---
@@ -330,7 +374,7 @@ This project demonstrates practical experience with:
 
 ---
 
-# 📄 License
+#  License
 
 This project is licensed under the **MIT License**.
 
@@ -375,6 +419,14 @@ sverma25072006@gmail.com
 
 ### ⭐ If you found this project useful, consider giving it a Star!
 
-**Happy Coding! 🚀**
+
+<div align="center">
+
+## 🚀 Happy Coding!
+
+### ⭐ Star • 🍴 Fork • 🛠️ Contribute • 📢 Share
+
+**Made with ❤️ by Sourabh Verma**
 
 </div>
+```
