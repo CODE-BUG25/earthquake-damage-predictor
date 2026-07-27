@@ -21,7 +21,7 @@
 
 ###  Predict Earthquake Damage Severity with Machine Learning
 
-**An end-to-end Machine Learning project covering Data Cleaning, EDA, Feature Engineering, Model Training, Hyperparameter Tuning, Evaluation, and Deployment using Streamlit.**
+**An end-to-end Machine Learning project covering Data Cleaning, EDA, Feature Engineering, Model Training, Hyperparameter Tuning, Evaluation, and Deployment.**
 
 </div>
 
